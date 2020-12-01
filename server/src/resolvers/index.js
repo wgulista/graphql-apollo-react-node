@@ -16,7 +16,7 @@ module.exports = {
         createUser: (parent, { firstName, lastName }) => {
             const id = users.length + 1;
             users.push({id, firstName, lastName});
-            return {id, firstName, lastName};
+            return users;
         },
         deleteUser: (parent, { id }) => {
             const userIdCheck = users.findIndex(user => user.id === id);

@@ -10,6 +10,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
 const USERS_LIST = gql`
     {
@@ -17,6 +19,16 @@ const USERS_LIST = gql`
             id
             lastName
             firstName
+        }
+    }
+`;
+
+const CREATE_USER = gql`
+    mutation createUser($firstName: String!, $lastName: String!) {
+        createUser(firstName: $firstName, lastName: $lastName) {
+            id
+            firstName
+            lastName
         }
     }
 `;
@@ -33,7 +45,10 @@ const DELETE_USER = gql`
 
 const App = () => {
     const [userList, setUserList] = useState([]);
-    const { loading, error, data } = useQuery(USERS_LIST);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const { loading, data } = useQuery(USERS_LIST);
+    const [createUser] = useMutation(CREATE_USER);
     const [deleteUser] = useMutation(DELETE_USER);
 
     useEffect(() => {
@@ -42,9 +57,16 @@ const App = () => {
         }
     }, [loading]);
 
+    const handleOnClickSubmit = async () => {
+        if (!!firstName && !!lastName) {
+            const newUsersList = await createUser({ variables: { firstName, lastName }});
+            setUserList(newUsersList.data.createUser);
+        } 
+        return ;
+    }
+
     const handleDeleteUser = async (id: any) => {
         const newUsersList = await deleteUser({ variables: { id }});
-        console.log(newUsersList.data)
         setUserList(newUsersList.data.deleteUser);
     }
 
@@ -54,6 +76,11 @@ const App = () => {
         <React.Fragment>
             <CssBaseline />
             <Container maxWidth="sm">
+                <form>
+                    <TextField label="Enter First Name" onChange={(e) => setFirstName(e.target.value)}/>
+                    <TextField label="Enter Last Name"  onChange={(e) => setLastName(e.target.value)}/>
+                    <Button variant="contained" color="primary" onClick={() => handleOnClickSubmit()}>Ajouter</Button>
+                </form>
                 <List component="nav">
                     {userList && userList.map((user: any) => {
                         return (

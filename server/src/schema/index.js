@@ -11,7 +11,7 @@ module.exports = `
   }
 
   type Mutation {
-    createUser(id: Int!, firstName: String!, lastName: String!): User!
+    createUser(firstName: String!, lastName: String!): [User!]
     deleteUser(id: Int!): [User!]
   }
 `;
