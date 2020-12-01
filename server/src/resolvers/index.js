@@ -10,6 +10,22 @@ const users = [
 module.exports = { 
     Query: {
         users: () => users,
-        user: (_, { id }) => find(propEq('id', id))(users)
+        user: (parent, { id }) => find(propEq('id', id))(users)
+    },
+    Mutation: {
+        createUser: (parent, { firstName, lastName }) => {
+            const id = users.length + 1;
+            users.push({id, firstName, lastName});
+            return {id, firstName, lastName};
+        },
+        deleteUser: (parent, { id }) => {
+            const userIdCheck = users.findIndex(user => user.id === id);
+            if (userIdCheck !== -1) {
+                users.splice(userIdCheck, 1);
+                return users.filter(user => user.id !== id);
+            } else {
+                throw new Error('Unknown ID');
+            }
+        }
     }
 };
